@@ -1,20 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet } from 'react-native';
+import { LittleLemonHeader } from './components/LittleLemonHeader';
+import { WelcomeScreen } from './components/WelcomeScreen';
+import { LittleLemonFooter } from './components/LittleLemonFooter';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+        
+        <LittleLemonHeader />
+        
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          indicatorStyle="white"
+        >
+          <WelcomeScreen />
+        </ScrollView>
+        
+        <LittleLemonFooter />
+        
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#495E57',
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
 });
