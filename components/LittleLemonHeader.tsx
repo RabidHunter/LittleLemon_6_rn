@@ -1,28 +1,32 @@
 import { View, Text, StyleSheet } from 'react-native';
+import type { Palette } from '../theme/palette';
 
-export function LittleLemonHeader() {
+type HeaderProps = {
+  colors: Palette;
+};
+
+export function LittleLemonHeader({ colors }: HeaderProps) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Little Lemon</Text>
-      <Text style={styles.subtitle}>Смак справжньої Італії</Text>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Little Lemon</Text>
+      <Text style={[styles.subtitle, { color: colors.muted }]}>
+        Смак справжньої Італії
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#EE9972',
-    padding: 20,
+    padding: 15,
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333333',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#333333',
-    marginTop: 5,
+    fontSize: 14,
+    marginTop: 2,
   },
 });

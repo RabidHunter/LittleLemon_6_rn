@@ -1,24 +1,40 @@
-import { View, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { LittleLemonHeader } from './components/LittleLemonHeader';
 import { LittleLemonFooter } from './components/LittleLemonFooter';
-
-import MenuFlatScreen from './screens/MenuFlatScreen';
-import MenuGroupedScreen from './screens/MenuGroupedScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
 import LoginScreen from './screens/LoginScreen';
-
-const ActiveScreen = MenuFlatScreen;
+import WelcomeScreen from './screens/WelcomeScreen';
+import { lightColors, darkColors } from './theme/palette';
 
 export default function App() {
+  const [demoEmail, setDemoEmail] = useState<string | null>(null);
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const colors = isDark ? darkColors : lightColors;
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
-        <LittleLemonHeader />
+      <SafeAreaView
+        style={[styles.screen, { backgroundColor: colors.background }]}
+        edges={['top', 'bottom']}
+      >
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <LittleLemonHeader colors={colors} />
         <View style={styles.content}>
-          <ActiveScreen />
+          {demoEmail === null ? (
+            <LoginScreen colors={colors} onContinue={setDemoEmail} />
+          ) : (
+            <WelcomeScreen
+              colors={colors}
+              email={demoEmail}
+              onExit={() => setDemoEmail(null)}
+            />
+          )}
         </View>
-        <LittleLemonFooter />
+        <LittleLemonFooter colors={colors} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -27,7 +43,6 @@ export default function App() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#495E57',
   },
   content: {
     flex: 1,

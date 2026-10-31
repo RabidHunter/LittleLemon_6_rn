@@ -1,19 +1,50 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, ScrollView, Text, TextInput, View, StyleSheet, Platform } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  Pressable,
+  Keyboard,
+  StyleSheet,
+  Platform,
+} from 'react-native';
+import type { Palette } from '../theme/palette';
 
-function isEmailFormatValid(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
+type LoginScreenProps = {
+  colors: Palette;
+  onContinue: (email: string) => void;
+};
 
-export default function LoginScreen() {
+export default function LoginScreen({ colors, onContinue }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const isEmailValid = isEmailFormatValid(email);
+  function handleContinue() {
+    const normalizedEmail = email.trim();
+    const emailLooksValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+
+    if (!emailLooksValid) {
+      setError('Введіть email у форматі name@example.com.');
+      return;
+    }
+
+    if (password.length === 0) {
+      setError('Введіть навчальний пароль.');
+      return;
+    }
+
+    setError(null);
+    Keyboard.dismiss();
+    setPassword('');
+    onContinue(normalizedEmail);
+  }
 
   return (
     <KeyboardAvoidingView
-      style={styles.screen}
+      style={[styles.screen, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -21,35 +52,46 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
-        <Text style={styles.title}>Вхід до Little Lemon</Text>
-        <Text style={styles.description}>
+        <Text style={[styles.title, { color: colors.text }]}>
+          Вхід до Little Lemon
+        </Text>
+        <Text style={[styles.description, { color: colors.muted }]}>
           Введіть свій email та пароль для авторизації.
         </Text>
 
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.surface,
+                color: colors.text,
+                borderColor: colors.border,
+              },
+            ]}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
-            placeholder="example@mail.com"
-            placeholderTextColor="#777777"
+            placeholder="name@example.com"
+            placeholderTextColor={colors.muted}
+            accessibilityLabel="Поле введення email"
           />
-          {email.length > 0 && !isEmailValid && (
-            <Text style={styles.errorText}>Некоректний формат email</Text>
-          )}
-          {email.length > 0 && isEmailValid && (
-            <Text style={styles.successText}>Email має коректний формат</Text>
-          )}
         </View>
 
         <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Пароль</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Пароль</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.surface,
+                color: colors.text,
+                borderColor: colors.border,
+              },
+            ]}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
@@ -58,12 +100,30 @@ export default function LoginScreen() {
             returnKeyType="done"
             submitBehavior="blurAndSubmit"
             placeholder="Введіть пароль"
-            placeholderTextColor="#777777"
+            placeholderTextColor={colors.muted}
+            accessibilityLabel="Поле введення пароля"
           />
-          {password.length > 0 && (
-            <Text style={styles.successText}>Пароль введено</Text>
-          )}
         </View>
+
+        {error !== null && (
+          <Text style={[styles.message, { color: colors.error }]}>
+            {error}
+          </Text>
+        )}
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={handleContinue}
+          style={({ pressed }) => [
+            styles.button,
+            { backgroundColor: colors.accent },
+            pressed && styles.buttonPressed,
+          ]}
+        >
+          <Text style={[styles.buttonText, { color: colors.onAccent }]}>
+            Увійти (демо)
+          </Text>
+        </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -80,41 +140,50 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#EDEFEE',
     marginBottom: 10,
     textAlign: 'center',
   },
   description: {
     fontSize: 15,
-    color: '#EDEFEE',
     marginBottom: 25,
     textAlign: 'center',
+    lineHeight: 22,
   },
   fieldContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#EDEFEE',
     marginBottom: 8,
   },
   input: {
     height: 48,
-    backgroundColor: '#EDEFEE',
     borderRadius: 8,
     paddingHorizontal: 15,
     fontSize: 16,
-    color: '#333333',
+    borderWidth: 1,
   },
-  errorText: {
-    color: '#EE9972',
-    fontSize: 14,
-    marginTop: 6,
+  message: {
+    fontSize: 16,
+    lineHeight: 24,
+    marginVertical: 12,
   },
-  successText: {
-    color: '#F4CE14',
-    fontSize: 14,
-    marginTop: 6,
+  button: {
+    minHeight: 48,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  buttonPressed: {
+    opacity: 0.75,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
